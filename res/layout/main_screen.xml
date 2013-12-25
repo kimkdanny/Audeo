@@ -1,0 +1,61 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/audeobackground" >
+
+    <GridView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/read"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="25dp"
+        android:numColumns="2" >
+
+    </GridView>
+
+    <ImageButton
+        android:id="@+id/read"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="50dp"
+        android:background="@color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/listenbutton_unclicked"
+        android:text="Read" />
+
+    <ImageButton
+        android:id="@+id/history"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="50dp"
+        android:background="@color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/history" />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_alignBottom="@+id/gridView1"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="5dp"
+        android:background="#ffffff" />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/gridView1"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/audeo_logo" />
+
+</RelativeLayout>

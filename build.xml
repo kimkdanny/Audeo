@@ -1,0 +1,50 @@
+<project name="AlchemyAPI" default="compile" basedir=".">
+	<description>
+		Build file for AlchemyAPI code / examples.
+	</description>
+  
+	<property name="src" location="src"/>
+	<property name="bin" location="bin"/>
+	<property name="dist"  location="dist"/>
+	<property name="depend"  location="depend"/>
+	
+  
+	<target name="clean">
+		<delete dir="${bin}"/>
+		<delete dir="${dist}"/>
+	</target>
+  
+	<target name="prepare">
+		<tstamp/>
+		<mkdir dir="${bin}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<path id="classpath">
+	  <pathelement path="${java.class.path}"/>
+	  <fileset dir="${depend}">
+		  <include name="**/*.jar"/>
+	  </fileset>
+	</path>
+
+	
+	<target name="compile" depends="prepare">
+		<property name="myclasspath" refid="classpath"/>
+		<!-- Emit the property to the ant console -->
+		<echo message="Classpath = ${myclasspath}"/>
+
+		<javac srcdir="${src}" destdir="${bin}" debug="true" debuglevel="lines,vars,source">
+		<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar jarfile="${dist}/AlchemyAPIAndroid.jar">
+			<fileset dir="${bin}">
+				<include name="**/api/**"/>
+			</fileset>
+		</jar>
+	</target>
+
+</project>
+
