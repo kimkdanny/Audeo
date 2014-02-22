@@ -43,7 +43,7 @@ import android.widget.Toast;
 import com.lymbix.LymbixClient;
 
 public class MainScreen extends Activity implements OnClickListener {
-
+	ArrayList<NameValuePair> nameValuePairs;
 	protected static final int RESULT_SPEECH = 1;
 	ArrayList<String> conceptStrings = new ArrayList();
 
@@ -94,14 +94,21 @@ public class MainScreen extends Activity implements OnClickListener {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				String url = "http://simple.wikipedia.org/wiki/"
-						+ keyterms.get(position);
+						+ conceptStrings.get(position);
 				Intent i = new Intent(Intent.ACTION_VIEW);
 				i.setData(Uri.parse(url));
 				startActivity(i);
 			}
 
 		});
-
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 	final Handler handler = new Handler() {
@@ -118,6 +125,8 @@ public class MainScreen extends Activity implements OnClickListener {
 			try {
 				lymbix = new LymbixClient(
 						"f7a64f0321fe0215a100053af36b0695c62647ba");
+				lymbix.wait(1000);
+				System.out.println("AFTER WAIT");
 				final String emotion = lymbix.tonalize(original_text, null).DominantCategory;
 				System.out.println("FUCK emotion: " + emotion);
 				Handler refresh = new Handler(Looper.getMainLooper());
@@ -140,26 +149,26 @@ public class MainScreen extends Activity implements OnClickListener {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		switch (requestCode) {
-			case RESULT_SPEECH: {
-				if (resultCode == RESULT_OK && null != data) {
-	
-					ArrayList<String> text = data
-							.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-					System.out.println(data);
-					original_text = text.get(0);
-					System.out.println("FUCK ORIGINAL " + original_text);
-	
-					ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-					nameValuePairs
-							.add(new BasicNameValuePair("text", original_text));
-					nameValuePairs.add(new BasicNameValuePair("locale", "en"));
-					nameValuePairs.add(new BasicNameValuePair("format", "json"));
-					nameValuePairs.add(new BasicNameValuePair("token",
-							"38aa5e2d8c1f4e8cb650b1b4101d35b6"));
-	
-					new JSONClass().execute(nameValuePairs);
-				}
+		case RESULT_SPEECH: {
+			if (resultCode == RESULT_OK && null != data) {
+
+				ArrayList<String> text = data
+						.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+				System.out.println(data);
+				original_text = text.get(0);
+				System.out.println("FUCK ORIGINAL " + original_text);
+
+				nameValuePairs = new ArrayList<NameValuePair>();
+				nameValuePairs
+						.add(new BasicNameValuePair("text", original_text));
+				nameValuePairs.add(new BasicNameValuePair("locale", "en"));
+				nameValuePairs.add(new BasicNameValuePair("format", "json"));
+				nameValuePairs.add(new BasicNameValuePair("token",
+						"38aa5e2d8c1f4e8cb650b1b4101d35b6"));
+
+				new JSONClass().execute(nameValuePairs);
 			}
+		}
 		}
 	}
 
@@ -171,11 +180,12 @@ public class MainScreen extends Activity implements OnClickListener {
 			InputStream is = null;
 			String result = "";
 			// http post
+			System.out.println("JSON FUCKING CLASS");
 			try {
 				HttpClient httpclient = new DefaultHttpClient();
 				HttpPost httppost = new HttpPost(
 						"http://api.reegle.info/service/extract");
-				httppost.setEntity(new UrlEncodedFormEntity(arg0[0]));
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 				HttpResponse response = httpclient.execute(httppost);
 				InputStream stream = response.getEntity().getContent();
 				BufferedReader reader = new BufferedReader(
@@ -183,18 +193,31 @@ public class MainScreen extends Activity implements OnClickListener {
 				StringBuilder sb = new StringBuilder();
 				String line;
 				while ((line = reader.readLine()) != null) {
+					System.out.println("LINE " + line);
 					sb.append(line);
 				}
 
 				String jsonData = sb.toString();
-
+				System.out.println("JSON DATA" + jsonData);
 				JSONObject json = new JSONObject(jsonData);
-				JSONArray concepts = json.getJSONArray("concepts");
+				JSONArray concepts = json.getJSONArray("terms");
+				System.out.println(concepts);
 				for (int i = 0; i < concepts.length(); i++) {
 					JSONObject eachConcept = concepts.getJSONObject(i);
-					conceptStrings.add(eachConcept.getString("prefLabel"));
+					String label = eachConcept.getString("label");
+					conceptStrings.add(label);
 				}
-
+				for (int i = 0; i < conceptStrings.size(); i++) {
+					String current = conceptStrings.get(i);
+					for (int j = 0; j < conceptStrings.size(); j++) {
+						if (!conceptStrings.get(j).equals(current)
+								&& conceptStrings.get(j).contains(current)){
+							conceptStrings.remove(j);
+							j--;
+						}
+					}
+				}
+				System.out.println(conceptStrings);
 			} catch (Exception e) {
 				Log.e("log_tag", "Error in http connection " + e.toString());
 			}
@@ -214,11 +237,15 @@ public class MainScreen extends Activity implements OnClickListener {
 					LymbixClient lymbix = null;
 					try {
 						lymbix = new LymbixClient(
-								"f7a64f0321fe0215a100053af36b0695c62647ba");
+								"5930a4eecec66b4b2ce929c9170c9036ca0ee79c");
+						System.out.println("lymbix " + original_text);
 						final String emotion = lymbix.tonalize(original_text,
 								null).DominantCategory;
+						System.out.println("lymbix2");
+						
 						sentimental = emotion;
 						System.out.println("FUCK emotion: " + emotion);
+						
 						Handler refresh = new Handler(Looper.getMainLooper());
 						refresh.post(new Runnable() {
 							public void run() {
